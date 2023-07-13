@@ -1,0 +1,120 @@
+#!/bin/sh
+
+sudo sh -c "dpkg -i /home/xomic/Downloads/google-chrome/google-chrome-stable_current_amd64.deb"
+
+######################INSTALLING TOMCATE##############
+
+sudo sh -c "rm -r /opt/tomcat8"
+sudo sh -c "sed -i '/CATALINA_HOME=\/opt\/tomcat7\//d' /etc/profile" 
+sudo sh -c "tar zxvf apache-tomcat-7.0.76.tar.gz --directory=/opt/" &&
+sudo sh -c "mv /opt/apache-tomcat-7.0.76 /opt/tomcat7" &&
+sudo sh -c "echo '\nCATALINA_HOME=/opt/tomcat7/' >> /etc/profile"
+
+######################INSTALLING JDK##################
+
+sudo sh -c "tar zxvf jdk-8u121-linux-x64.tar.gz --directory=/opt/" &&
+sudo sh -c "echo '\nJAVA_HOME=/opt/jdk1.8.0_121 \nJRE_HOME=\$JAVA_HOME/jre \nPATH=\$PATH:\$JAVA_HOME/bin:\$JRE_HOME/bin \nexport JAVA_HOME \nexport JRE_HOME \nexport PATH\n'  >>  /etc/profile" && 
+sudo sh -c "update-alternatives --install '/bin/java' 'java' '/opt/jdk1.8.0_121/jre/bin/java' 1" &&
+sudo sh -c "update-alternatives --install '/bin/javac' 'javac' '/opt/jdk1.8.0_121/bin/javac' 1" &&
+sudo sh -c "update-alternatives --install '/bin/javaws' 'javaws' '/opt/jdk1.8.0_121/bin/javaws' 1" &&
+sudo sh -c "update-alternatives --set java /opt/jdk1.8.0_121/jre/bin/java" &&
+sudo sh -c "update-alternatives --set javac /opt/jdk1.8.0_121/bin/javac" &&
+sudo sh -c "update-alternatives --set javaws /opt/jdk1.8.0_121/bin/javaws" &&
+sudo sh -c "cp /home/xomic/Downloads/jars/tomcat7/commons-pool2-2.2.jar /opt/tomcat7/lib/commons-pool2-2.2.jar" &&
+sudo sh -c "cp /home/xomic/Downloads/jars/tomcat7/jedis-2.5.2.jar /opt/tomcat7/lib/jedis-2.5.2.jar" &&
+sudo sh -c "cp /home/xomic/Downloads/jars/tomcat7/mysql-connector-java-5.1.36.jar /opt/tomcat7/lib/mysql-connector-java-5.1.36.jar" &&
+sudo sh -c "cp /home/xomic/Downloads/jars/tomcat7/tomcat-redis-session-manager-2.0.0.jar /opt/tomcat7/lib/tomcat-redis-session-manager-2.0.0.jar" &&
+sudo sh -c "cp /home/xomic/Downloads/jars/java/local_policy.jar /opt/jdk1.8.0_121/jre/lib/security/local_policy.jar" &&
+sudo sh -c "cp /home/xomic/Downloads/jars/java/US_export_policy.jar /opt/jdk1.8.0_121/jre/lib/security/US_export_policy.jar"
+
+######################INSTALLING OPEN SSH##################
+
+sudo sh -c "echo 'Y' | apt-get purge openssh-\*" && 
+sudo sh -c "echo 'Y' | apt-get install openssh-server"
+
+######################INSTALLING NGINX ##################
+
+sudo sh -c "echo 'Y' | apt-get purge nginx-\*" &&
+sudo sh -c "echo 'Y' | apt-get install nginx=1.*" &&
+sudo sh -c "ufw app list" &&
+sudo sh -c "ufw allow 'Nginx HTTP'" &&
+sudo sh -c "ufw allow 'Nginx HTTPS'" &&
+sudo sh -c "systemctl status nginx"
+sudo sh -c "cp -R /home/xomic/Downloads/nginx/ssl /etc/nginx/ssl" &&
+sudo sh -c "cp /home/xomic/Downloads/nginx/nginx.conf /etc/nginx/nginx.conf" 
+
+######################INSTALLING REDIS ##################
+
+sudo sh -c "apt-get purge redis-ser\*" &&
+sudo sh -c "echo 'Y' | apt-get install libc6-dev" &&
+sudo sh -c "tar zxvf redis-3.2.8.tar.gz" &&
+sudo sh -c "make /home/xomic/Downloads/redis-3.2.8/deps/hiredis /home/xomic/Downloads/redis-3.2.8/deps/lua /home/xomic/Downloads/redis-3.2.8/deps/jemalloc /home/xomic/Downloads/redis-3.2.8/deps/linenoise /home/xomic/Downloads/redis-3.2.8/deps/geohash-int" &&
+sudo sh -c "make -C /home/xomic/Downloads/redis-3.2.8/ all" &&
+sudo sh -c "make install -C /home/xomic/Downloads/redis-3.2.8/" &&
+sudo sh -c "echo '\n\n\n\n\n' | sh /home/xomic/Downloads/redis-3.2.8/utils/install_server.sh" &&
+sudo sh -c "service redis_6379 restart"
+sudo sh -c "rm -r /home/xomic/Downloads/redis-3.2.8"
+
+######################INSTALLING STS##################
+
+if [ -f "/opt/spring-tool-suite-4-4.9.0.RELEASE-e4.18.0-linux.gtk.x86_64.tar.gz" ] ; then
+    sudo sh -c "rm -r /opt/spring-tool-suite-4-4.9.0.RELEASE-e4.18.0-linux.gtk.x86_64.tar.gz"
+fi
+
+if [ -f "/opt/sts-bundle" ] ; then
+    sudo sh -c "rm -r /opt/sts-bundle/"
+fi
+
+if [ -f "/opt/sts-3.9.7" ] ; then
+    sudo sh -c "rm -r /opt/sts-4.9.0/"
+fi
+
+sudo sh -c "cp /home/xomic/Downloads/spring-tool-suite-4-4.9.0.RELEASE-e4.18.0-linux.gtk.x86_64.tar.gz /opt/" &&
+sudo sh -c "tar zxvf spring-tool-suite-4-4.9.0.RELEASE-e4.18.0-linux.gtk.x86_64.tar.gz --directory=/opt/" &&
+sudo sh -c "mv /opt/sts-4.9.0.RELEASE /opt/sts-4.9.0" &&
+sudo sh -c "rm /opt/spring-tool-suite-4-4.9.0.RELEASE-e4.18.0-linux.gtk.x86_64.tar.gz" &&
+sudo sh -c "echo 'Y' | cp -f /home/xomic/Downloads/sts.desktop /usr/share/applications/sts.desktop" 
+
+##############INSTALLING MATTERMOST ##############
+sudo sh -c "dpkg -i /home/xomic/Downloads/mattermost-desktop-4.5.0-linux-amd64.deb" 
+echo "Y" | sudo apt-get install libappindicator1
+echo "Y" | sudo apt-get install libindicator7
+echo "Y" | sudo apt --fix-broken install
+sudo sh -c "apt-get install -f"
+echo "Y" | sudo sh /opt/Mattermost/create_desktop_file.sh
+
+##############INSTALLING ORACLE DEVELOPER TOOL##############
+
+
+sudo sh -c "dpkg -i /home/xomic/Downloads/sqldeveloper_18.1.0.095.1630-2_all.deb" &&
+sudo sh -c "apt-get install -f"
+sudo sh -c "echo 'Y' | cp -f /opt/sqldeveloper/sqldeveloper.desktop /usr/share/applications/sqldeveloper.desktop"
+
+##############SETTING UP USERGROUP & GROUP PERMISSION##############
+
+sudo sh -c "groupadd developer"
+sudo sh -c "adduser xomic developer"
+sudo sh -c "chown -R xomic:developer /opt/*"
+sudo sh -c "chmod 777 /etc/hosts"
+
+
+
+##############################INSTALLING MYSQL##############################
+
+ sudo apt-get install mysql-server -y
+ sudo mysql_secure_installation -y
+ sudo service mysql status
+ sudo service mysql stop
+ sudo service mysql start
+ 
+
+
+####################INSTALL TOMCAT9####################
+
+sudo mv /home/xomic/Downloads/tomcat9 /opt/
+sudo chown -R root:developer /opt/*
+sudo chmod -R 775 /opt/*
+sudo chown -R root:developer /etc/nginx/
+sudo chmod -R 775 /etc/nginx/nginx.conf
+
+
